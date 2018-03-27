@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Add BIG-IP{% endblock %}
+
+{% block content %}
+    <style>
+        .status-circle {
+          width: 25px;
+          height: 25px;
+          -webkit-border-radius: 25px;
+          -moz-border-radius: 25px;
+          border-radius: 25px;
+          background: white;
+        }
+    </style>
+    <div class="container-fluid">
+    <div class="row">
+        <h1>Manage Harness BIG-IPs</h1>
+
+        <a href="{%  url 'add bigip' %}" data-toggle="tooltip" data-placement="right" title="Add a new BIG-IP"
+           class="btn btn-lg" style="font-size:2em; color: tomato;">
+            <i class="fas fa-plus-circle"></i>
+        </a>
+    </div>
+
+    <div class="row">
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th scope="col">ID</th>
+            <th scope="col">IP Address</th>
+            <th scope="col">Sync Status</th>
+            <th scope="col">Failover State</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for bigip in device_list %}
+            <tr>
+                <th scope="row">{{ bigip.id }}</th>
+                <td>{{ bigip.mgmt_ip }}</td>
+                <td><div id="sync_status_{{ bigip.id }}" class="status-circle"></div></td>
+                <td><div id="failover_state_{{ bigip.id }}"></div></td>
+                <td>
+                    <a href="{% url 'delete bigip' bigip_id=bigip.id confirm=0 %}"
+                       data-toggle="tooltip" data-placement="right" title="Delete {{ bigip }}">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+
+        <tfoot>
+
+        </tfoot>
+    </table>
+    </div>
+    </div>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+        {% for bigip in device_list %}
+             $.ajax({
+                    method: 'GET',
+                    url: "{% url 'get bigip sync status' bigip_id=bigip.id %}",
+                    dataType: 'json',
+                    async: true
+             }).done(function(data) {
+                 $('#sync_status_{{ bigip.id }}').css('background-color', data['status']);
+                 console.log(data);
+             });
+
+            $.ajax({
+                    method: 'GET',
+                    url: "{% url 'get bigip failover state' bigip_id=bigip.id %}",
+                    dataType: 'json',
+                    async: true
+             }).done(function(data) {
+                 $('#failover_state_{{ bigip.id }}').text(data['state']);
+                 console.log(data);
+             });
+
+        {% endfor %}
+
+        });
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Application{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <h1>Really delete {{ app }}?</h1>
+    </div>
+
+    <a href="{% url 'delete app' app_id=app.id confirm=1 %}" type="button" class="btn btn-danger btn-lg">Delete <i class="fas fa-trash-alt"></i></a>
+    <a href="{% url 'view dsc' dsc_id=app.dsc.id %}" type="button" class="btn btn-secondary btn-lg">Cancel <i class="fas fa-ban"></i></a>
+{% endblock %}

@@ -1,0 +1,47 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">HA/DSC Harness</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="bigipDropdown"
+               role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              BIG-IPs
+            </a>
+
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                {% for bigip in bigip_list %}
+                    <a class="dropdown-item" href="#">{{ bigip }}</a>
+                {% endfor %}
+
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{%  url 'manage bigip' %}">Manage BIG-IPs</a>
+            </div>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
+               role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              DSCs
+            </a>
+
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                {% for dsc in dsc_list %}
+                    <a class="dropdown-item" href="{% url 'view dsc' dsc_id=dsc.id %}">{{ dsc }}</a>
+                {% endfor %}
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% url 'create dsc' %}">Create New DSC</a>
+            </div>
+        </li>
+
+    </ul>
+
+  </div>
+</nav>

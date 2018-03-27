@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="row">
+        <div class="col-sm">
+            <h1>Add Harness BIG-IPs</h1>
+        </div>
+    </div>
+
+
+        <form action="" method="POST">
+            {% csrf_token %}
+
+            <div class="row">
+                <div class="col">
+                <div class="form-group">
+
+                    <label for="{{ form.name.id_for_label }}">DSC Name</label>
+
+                    <input type="text"
+                           class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                           id="{{ form.name.id_for_label }}"
+                           name="{{ form.name.html_name }}"
+                           {% if form.name.value %}value="{{ form.name.value }}"{% endif %}
+                           placeholder="DSC Name">
+
+                    {% for error in form.name.errors %}
+                        <div class="invalid-feedback">{{ error|escape }}</div>
+                    {% endfor %}
+
+                </div>
+                </div>
+
+                <div class="col">
+                <div class="form-group">
+                    <h2>Choose First BIG-IP</h2>
+                    {% for bigip in free_bigips %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="{{ form.initial_bigip_id.html_name }}" id="{{ form.initial_bigip_id.id_for_label }}-{{ bigip.id }}" checked value="{{ bigip.id }}">
+                        <label class="form-check-label" for="{{ form.initial_bigip_id.html_name }}">
+                            {{ bigip }}
+                        </label>
+                    </div>
+                    {% endfor %}
+
+                    {% for error in form.initial_bigip_id.errors %}
+                        <div class="invalid-feedback">{{ error|escape }}</div>
+                    {% endfor %}
+                </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </div>
+
+        </form>
+
+
+
+{% endblock %}

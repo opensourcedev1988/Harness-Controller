@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Add BIG-IP{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+    <div class="row">
+        <h1>Add Harness BIG-IPs</h1>
+    </div>
+    <div class="row">
+        <form action="" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.mgmt_ip.id_for_label }}">Management IP</label>
+
+                <input type="text"
+                       class="form-control {% if form.mgmt_ip.errors %}is-invalid{% endif %}"
+                       id="{{ form.mgmt_ip.id_for_label }}"
+                       name="{{ form.mgmt_ip.html_name }}"
+                       {% if form.mgmt_ip.value %}value="{{ form.mgmt_ip.value }}"{% endif %}
+                       placeholder="IP Address">
+
+                {% for error in form.mgmt_ip.errors %}
+                    <div class="invalid-feedback">{{ error|escape }}</div>
+                {% endfor %}
+
+                <label for="{{ form.login.id_for_label }}">Administrator Login</label>
+                <input type="text"
+                       class="form-control {% if form.login.errors %}is-invalid{% endif %}"
+                       id="{{ form.login.id_for_label }}"
+                       name="{{ form.login.html_name }}"
+                       {% if form.login.value %}value="{{ form.login.value }}"{% endif %}
+                       placeholder="Login">
+
+                {% for error in form.login.errors %}
+                    <div class="invalid-feedback">{{ error|escape }}</div>
+                {% endfor %}
+
+                <label for="{{ form.password.id_for_label }}">Administrator Password</label>
+                <input type="text"
+                       class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                       id="{{ form.password.id_for_label }}"
+                       name="{{ form.password.html_name }}"
+                       {% if form.password.value %}value="{{ form.password.value }}"{% endif %}
+                       placeholder="Password">
+
+                {% for error in form.password.errors %}
+                    <div class="invalid-feedback">{{ error|escape }}</div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+    </div>
+{% endblock %}

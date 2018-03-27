@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete BIG-IP{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <h1>Really delete {{ bigip }}?</h1>
+    </div>
+
+    <a href="{% url 'delete bigip' bigip_id=bigip.id confirm=1 %}" type="button" class="btn btn-danger btn-lg">Delete <i class="fas fa-trash-alt"></i></a>
+    <a href="{% url 'manage bigip' %}" type="button" class="btn btn-secondary btn-lg">Cancel <i class="fas fa-ban"></i></a>
+{% endblock %} %}

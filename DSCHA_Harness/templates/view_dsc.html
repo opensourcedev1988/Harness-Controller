@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+    <div class="row">
+        <div class="col">
+        <h1>DSC: {{ dsc }}</h1>
+        </div>
+        <div class="col">
+            <a href="{% url 'delete dsc' dsc_id=dsc.id confirm=0 %}"
+               type="button" class="btn btn-danger float-right">Delete DSC</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+
+            <hr/>
+            <h2>BIG-IPs in Device Trust</h2>
+
+            <div class="row">
+            <div class="col">
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">IP Address</th>
+                    <th scope="col">Sync Status</th>
+                    <th scope="col">Failover State</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for bigip in dsc.bigip_set.all %}
+                    <tr>
+                        <th scope="row">{{ bigip.id }}</th>
+                        <td>{{ bigip.mgmt_ip }}</td>
+                        <td><div id="sync_status_{{ bigip.id }}" class="status-circle"></div></td>
+                        <td><div id="failover_state_{{ bigip.id }}"></div></td>
+                        <td>
+                            <a href="{% url 'dsc remove bigip' bigip_id=bigip.id dsc_id=dsc.id confirm=1 %}"
+                               data-toggle="tooltip" data-placement="right" title="Remove {{ bigip }}">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+
+                <tfoot>
+
+                </tfoot>
+            </table>
+            </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="row">
+                <div class="col">
+                    <h2>Available BIG-IPs</h2>
+                </div>
+            </div>
+
+            <form action="{% url 'dsc add bigip' %}" method="POST">
+            {% csrf_token %}
+            <div class="row" style="margin-left: 25px;">
+                <div class="col">
+                    {% for bigip in free_bigips %}
+
+                        <div class="form-check">
+                            <input type="hidden" id="dsc-id" name="dsc-id" value="{{ dsc.id }}">
+                            <input class="form-check-input" name="free-bigip-{{ bigip.id }}"
+                                   type="checkbox" value="{{ bigip.id }}" id="free-bigip-{{ bigip.id }}">
+                            <label class="form-check-label" for="free-bigip-{{ bigip.id }}">
+                                {{ bigip }}
+                            </label>
+                        </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+            {% if free_bigips %}
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Add BIG-IP(s)</button>
+                    </div>
+                </div>
+            {% endif %}
+            </form>
+        </div>
+
+    </div>
+
+    <hr/>
+
+    <div class="row">
+        <div class="col">
+            <h1>Applications</h1>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'create app' dsc_id=dsc.id %}"
+               type="button" class="btn btn-success float-left">Create App</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Source IP</th>
+                <th scope="col">Net Info</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for app in dsc.application_set.all %}
+                {% if app.is_start is True %}
+                    <tr class="table-success" id={{ app.id }}>
+                {% else %}
+                    <tr class="table-default" id={{ app.id }}>
+                {% endif %}
+                    <th scope="row">{{ app.id }}</th>
+                    <td>{{ app.name}}</td>
+                    <td>{{ app.src_ip.ip}}</td>
+                    <td>{% if app.protocol == 1 %}tcp{% elif app.protocol == 2 %}udp{% endif %}://{{ app.vip }}:{{ app.socket_port }}</td>
+                    <td><a href="{% url 'delete app' app_id=app.id confirm=0 %}"
+                           data-toggle="tooltip" data-placement="right" title="Remove {{ app }}">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                        &nbsp
+                        <a href="{% url 'start app' app_id=app.id %}"
+                           data-toggle="tooltip" data-placement="right" title="Start {{ app }}">
+                            <i class="fas fa-play"></i>
+                        </a>
+                        &nbsp
+                        <a href="{% url 'stop app' app_id=app.id %}"
+                           data-toggle="tooltip" data-placement="right" title="Stop {{ app }}">
+                            <i class="fas fa-stop"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+
+            <tfoot>
+            </tfoot>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+        {% for bigip in dsc.bigip_set.all %}
+             $.ajax({
+                    method: 'GET',
+                    url: "{% url 'get bigip sync status' bigip_id=bigip.id %}",
+                    dataType: 'json',
+                    async: true
+             }).done(function(data) {
+                 $('#sync_status_{{ bigip.id }}').css('background-color', data['status']);
+                 console.log(data);
+             });
+
+            $.ajax({
+                    method: 'GET',
+                    url: "{% url 'get bigip failover state' bigip_id=bigip.id %}",
+                    dataType: 'json',
+                    async: true
+             }).done(function(data) {
+                 $('#failover_state_{{ bigip.id }}').text(data['state']);
+                 console.log(data);
+             });
+
+        {% endfor %}
+        });
+    </script>
+
+{% endblock %}

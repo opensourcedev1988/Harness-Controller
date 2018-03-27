@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col">
+            <h1>Create Application</h1>
+        </div>
+    </div>
+
+    <form action="" method="POST">
+        {% csrf_token %}
+
+        <div class="row">
+                <div class="col">
+                <div class="form-group">
+
+                    <label for="{{ form.name.id_for_label }}">Application Name</label>
+
+                    <input type="text"
+                           class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                           id="{{ form.name.id_for_label }}"
+                           name="{{ form.name.html_name }}"
+                           {% if form.name.value %}value="{{ form.name.value }}"{% endif %}
+                           placeholder="App Name">
+
+                    {% for error in form.name.errors %}
+                        <div class="invalid-feedback">{{ error|escape }}</div>
+                    {% endfor %}
+
+                    <label for="{{ form.description.id_for_label }}">Description</label>
+                    <textarea class="form-control" name="{{ form.description.html_name }}"
+                              id="{{ form.description.id_for_label }}" rows="3"
+                              placeholder="Enter your application description.">Description</textarea>
+
+                    <label for="{{ form.server_pool.id_for_label }}">Server Pool</label>
+                    <textarea class="form-control" name="{{ form.server_pool.html_name }}"
+                              id="{{ form.server_pool.id_for_label }}" rows="3"
+                              placeholder="Enter your server:port list (Use ; as delimiter)."></textarea>
+
+                    <label for="{{ form.vip.id_for_label }}">Virtual IP Address</label>
+                    <select class="form-control" name="{{ form.vip.html_name }}"
+                            id="{{ form.vip.id_for_label }}">
+
+                        {% for vip in free_vips %}
+                            <option>{{ vip }}</option>
+                        {% endfor %}
+
+                    </select>
+
+                    <label for="{{ form.src_ip.id_for_label }}">Source IP Address</label>
+                    <select class="form-control" name="{{ form.src_ip.html_name }}"
+                            id="{{ form.src_ip.id_for_label }}">
+
+                        {% for src_ip in free_src_ips %}
+                            <option>{{ src_ip }}</option>
+                        {% endfor %}
+
+                    </select>
+
+                    <label for="{{ form.packet_per_second.id_for_label }}">Packet Per Second</label>
+                    <input type="number"
+                           class="form-control {% if form.packet_per_second.errors %}is-invalid{% endif %}"
+                           id="{{ form.packet_per_second.id_for_label }}"
+                           name="{{ form.packet_per_second.html_name }}"
+                           {% if form.packet_per_second.value %}value="{{ form.packet_per_second.value }}"{% endif %}
+                           placeholder="Packet Per Second">
+
+                    {% for error in form.socket_port.errors %}
+                        <div class="invalid-feedback">{{ error|escape }}</div>
+                    {% endfor %}
+                </div>
+                </div>
+
+                <div class="col">
+                    <h3>Protocol</h3>
+                    <div style="margin-left: 30px;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="{{ form.protocol.html_name }}"
+                                   id="{{ form.protocol.id_for_label }}-TCP" checked value="1">
+                            <label class="form-check-label" for="{{ form.initial_bigip_id.html_name }}">TCP</label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="{{ form.protocol.html_name }}"
+                                   id="{{ form.protocol.id_for_label }}-UDP" checked value="2">
+                            <label class="form-check-label" for="{{ form.initial_bigip_id.html_name }}">UDP</label>
+                        </div>
+                    </div>
+
+                    <input type="number"
+                           class="form-control {% if form.socket_port.errors %}is-invalid{% endif %}"
+                           id="{{ form.socket_port.id_for_label }}"
+                           name="{{ form.socket_port.html_name }}"
+                           {% if form.socket_port.value %}value="{{ form.socket_port.value }}"{% endif %}
+                           placeholder="Protocol Port Number">
+
+                    {% for error in form.socket_port.errors %}
+                        <div class="invalid-feedback">{{ error|escape }}</div>
+                    {% endfor %}
+
+
+                </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </div>
+
+    </form>
+{% endblock %}
