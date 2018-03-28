@@ -131,7 +131,7 @@ class UDPTrafficStat(models.Model):
         db_table = settings.DATABASES['default']['NAME']
         managed = False
 
-    app_id = models.IntegerField()
+    app_id = models.ForeignKey('application.Application', on_delete=models.CASCADE, null=True, blank=True)
     byte_sent = models.BigIntegerField()
     packets_sent = models.BigIntegerField()
     packets_receive = models.BigIntegerField()

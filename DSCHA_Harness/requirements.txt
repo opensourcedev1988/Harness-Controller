@@ -2,3 +2,4 @@ django
 requests
 djangorestframework
 celery
+psycopg2
