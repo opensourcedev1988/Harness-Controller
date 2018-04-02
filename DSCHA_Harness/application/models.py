@@ -127,15 +127,15 @@ class AppServer(models.Model):
 
 class UDPTrafficStat(models.Model):
 
-    class Meta:
-        db_table = settings.DATABASES['default']['NAME']
-        managed = False
-
-    app_id = models.ForeignKey('application.Application', on_delete=models.CASCADE, null=True, blank=True)
+    app_id = models.IntegerField()
     byte_sent = models.BigIntegerField()
     packets_sent = models.BigIntegerField()
     packets_receive = models.BigIntegerField()
     drop_packets = models.BigIntegerField()
     avg_latency = models.FloatField()
     pkt_time = models.DateTimeField()
+
+    def __str__(self):
+
+        return "%s: %s" % (self.app_id, self.pkt_time)
 
