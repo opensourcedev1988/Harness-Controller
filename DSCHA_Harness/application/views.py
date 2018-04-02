@@ -5,12 +5,38 @@ from django.shortcuts import render, redirect
 from global_var import *
 from dsc.models import DSC, VIP
 from .forms import AppForm
-from .models import Application, SOURCEIP, AppServer
+from .models import Application, SOURCEIP, AppServer, UDPTrafficStat
 from dsc.models import VirtualServer, TrafficGroup, BIGIP
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from .serializers import UDPTrafficStatSerializer
+from django.http import Http404
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
 config.read(harness_config_path)
+
+
+class UDPTrafficStatListCreateApiView(APIView):
+
+    def get(self, request, format=None):
+        udpstats = UDPTrafficStat.objects.all()
+        serializer = UDPTrafficStatSerializer(udpstats, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        post_data = request.data
+        serializer_data_list = []
+        for seri_data in post_data['data_list']:
+            serializer = UDPTrafficStatSerializer(data=seri_data)
+            if serializer.is_valid():
+                serializer.save()
+                serializer_data_list.append(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer_data_list, status=status.HTTP_201_CREATED)
 
 
 def create_app(request, dsc_id):

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path
-
+from django.conf.urls import url
 from dsc import views as dsc_views
 from dashboard import views as dash_views
 from application import views as app_views
@@ -47,4 +47,7 @@ urlpatterns = [
 
     # Admin interface
     path('admin/', admin.site.urls),
+
+    # Rest API
+    url(r'^api/v1/UDPTrafficStat/$', app_views.UDPTrafficStatListCreateApiView.as_view()),
 ]
