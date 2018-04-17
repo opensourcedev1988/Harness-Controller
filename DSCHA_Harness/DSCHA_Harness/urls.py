@@ -14,12 +14,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path, re_path, include
 from django.conf.urls import url
 from dsc import views as dsc_views
 from dashboard import views as dash_views
 from application import views as app_views
+from action import views as action_views
+from rest_framework_swagger.views import get_swagger_view
+from dsc import api as dsc_api
+from application import api as app_api
+from action import api as action_api
+from rest_framework.documentation import include_docs_urls
 
+API_TITLE = 'Harness Controller API'
 
 urlpatterns = [
 
@@ -49,5 +56,44 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Rest API
-    url(r'^api/v1/UDPTrafficStat/$', app_views.UDPTrafficStatListCreateApiView.as_view()),
+
+    # DSC API
+    url(r'^api/v1/dsc/$', dsc_api.DSCList.as_view()),
+    url(r'^api/v1/dsc/(?P<pk>[0-9]+)/$', dsc_api.DSCDetail.as_view()),
+    url(r'^api/v1/dsc/(?P<pk>[0-9]+)/addbigip/(?P<bigip_pk>[0-9]+)/$', dsc_api.DSCAddList.as_view()),
+    url(r'^api/v1/dsc/(?P<pk>[0-9]+)/removebigip/(?P<bigip_pk>[0-9]+)/$', dsc_api.DSCRemoveList.as_view()),
+    url(r'^api/v1/bigip/$', dsc_api.BIGIPList.as_view()),
+    url(r'^api/v1/bigip/(?P<pk>[0-9]+)/$', dsc_api.BIGIPDetail.as_view()),
+    url(r'^api/v1/vip/$', dsc_api.VIPList.as_view()),
+    url(r'^api/v1/vip/(?P<pk>[0-9]+)/$', dsc_api.VIPDetail.as_view()),
+    url(r'^api/v1/virtualserver/$', dsc_api.VirtualServerList.as_view()),
+    url(r'^api/v1/virtualserver/(?P<pk>[0-9]+)/$', dsc_api.VirtualServerDetail.as_view()),
+    url(r'^api/v1/trafficgroup/$', dsc_api.TrafficGroupList.as_view()),
+    url(r'^api/v1/trafficgroup/(?P<pk>[0-9]+)/$', dsc_api.TrafficGroupDetail.as_view()),
+
+    # Application API
+    url(r'^api/v1/udptrafficstat/$', app_api.UDPTrafficStatListCreateApiView.as_view()),
+    url(r'^api/v1/sourceip/$', app_api.SourceIPList.as_view()),
+    url(r'^api/v1/sourceip/(?P<pk>[0-9]+)/$', app_api.SourceIPDetail.as_view()),
+    url(r'^api/v1/appserver/$', app_api.AppServerList.as_view()),
+    url(r'^api/v1/appserver/(?P<pk>[0-9]+)/$', app_api.AppServerDetail.as_view()),
+    url(r'^api/v1/application/$', app_api.ApplicationList.as_view()),
+    url(r'^api/v1/application/(?P<pk>[0-9]+)/$', app_api.ApplicationDetail.as_view()),
+    url(r'^api/v1/application/(?P<pk>[0-9]+)/start$', app_api.ApplicationStart.as_view()),
+    url(r'^api/v1/application/(?P<pk>[0-9]+)/stop$', app_api.ApplicationStop.as_view()),
+    url(r'^api/v1/application/(?P<pk>[0-9]+)/init$', app_api.ApplicationInit.as_view()),
+
+
+    # Action API
+    url(r'^api/v1/interval/$', action_api.IntervalScheduleList.as_view()),
+    url(r'^api/v1/interval/(?P<pk>[0-9]+)/$', action_api.IntervalScheduleDetail.as_view()),
+    url(r'^api/v1/crontab/$', action_api.CrontabScheduleList.as_view()),
+    url(r'^api/v1/crontab/(?P<pk>[0-9]+)/$', action_api.CrontabScheduleDetail.as_view()),
+    url(r'^api/v1/solar/$', action_api.SolarScheduleeList.as_view()),
+    url(r'^api/v1/solar/(?P<pk>[0-9]+)/$', action_api.SolarScheduleDetail.as_view()),
+    url(r'^api/v1/failoveraction/$', action_api.FailoverActionList.as_view()),
+    url(r'^api/v1/failoveraction/(?P<pk>[0-9]+)/$', action_api.FailoverActionDetail.as_view()),
+
+    # REST API Doc
+    url(r'^docs/', include_docs_urls(title=API_TITLE))
 ]

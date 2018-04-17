@@ -5,38 +5,13 @@ from django.shortcuts import render, redirect
 from global_var import *
 from dsc.models import DSC, VIP
 from .forms import AppForm
-from .models import Application, SOURCEIP, AppServer, UDPTrafficStat
+from .lib.app_config import *
+from .models import Application, SOURCEIP, AppServer
 from dsc.models import VirtualServer, TrafficGroup, BIGIP
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from .serializers import UDPTrafficStatSerializer
-from django.http import Http404
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
 
 logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
 config.read(harness_config_path)
-
-
-class UDPTrafficStatListCreateApiView(APIView):
-
-    def get(self, request, format=None):
-        udpstats = UDPTrafficStat.objects.all()
-        serializer = UDPTrafficStatSerializer(udpstats, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        post_data = request.data
-        serializer_data_list = []
-        for seri_data in post_data['data_list']:
-            serializer = UDPTrafficStatSerializer(data=seri_data)
-            if serializer.is_valid():
-                serializer.save()
-                serializer_data_list.append(serializer.data)
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer_data_list, status=status.HTTP_201_CREATED)
 
 
 def create_app(request, dsc_id):
@@ -58,22 +33,9 @@ def create_app(request, dsc_id):
             app.vip = VIP.objects.get(ip=form.cleaned_data['vip'])
             app.src_ip = SOURCEIP.objects.get(ip=form.cleaned_data['src_ip'])
             app.dsc = dsc
-            app.virtual_server = app.name + "-virtual"
-            client_ip = config.get("harness", "client_agent")
 
             # Create client application
-            if app.protocol == Application.PROTOCOL_UDP:
-                url = "http://%s:8000/api/v1/UDPTraffics/" % client_ip
-                post_args = {"dst_ip": app.vip.ip, "dst_port": app.socket_port, "packet_per_second": app.packet_per_second}
-                r = requests.post(url,
-                                  json=post_args)
-                logger.debug(r.json())
-                if r.status_code == 201:
-                    app.client_app_id = r.json()["id"]
-
-            elif app.protocol == Application.PROTOCOL_TCP:
-                # TODO Create TCP traffic
-                pass
+            app.client_app_id = create_client_app(app)
 
             app.save()
             # Create server objects
@@ -84,7 +46,7 @@ def create_app(request, dsc_id):
                 server_obj.port = server.split(":")[1]
                 server_obj.application = app
                 server_obj.save()
-            app.init_config()
+            app_init_config(app)
             # Create virtual server and traffic group object
             virtual = VirtualServer()
             virtual.name = "%s-virtual" % app.name
@@ -116,18 +78,8 @@ def delete_app(request, app_id, confirm):
     dsc = app.dsc
 
     if confirm == '1':
-        app.tear_config()
-        client_ip = config.get("harness", "client_agent")
-        if app.protocol == Application.PROTOCOL_UDP:
-            url = "http://%s:8000/api/v1/UDPTraffics/%s/" % (client_ip,
-                                                             app.client_app_id)
-            r = requests.delete(url)
-            logger.debug(r.text)
-        elif app.protocol == Application.PROTOCOL_TCP:
-            # TODO Delete TCP Traffic
-            pass
-        else:
-            pass
+        app_tear_config(app)
+        delete_client_app(app)
         app.delete()
         return redirect(dsc)
 
@@ -138,20 +90,7 @@ def delete_app(request, app_id, confirm):
 def start_app(request, app_id):
     app = Application.objects.get(id=app_id)
     dsc = app.dsc
-    client_ip = config.get("harness", "client_agent")
-    if app.protocol == Application.PROTOCOL_UDP:
-        url = "http://%s:8000/api/v1/UDPTraffics/%s/" % (client_ip,
-                                                         app.client_app_id)
-        post_args = {"is_start": True}
-        r = requests.patch(url,
-                           json=post_args)
-        logger.debug(r.text)
-        if r.status_code == 200:
-            app.is_start = True
-            app.save()
-    elif app.protocol == Application.PROTOCOL_TCP:
-        # TODO TCP traffic
-        pass
+    start_client_app(app)
 
     return redirect(dsc)
 
@@ -159,20 +98,7 @@ def start_app(request, app_id):
 def stop_app(request, app_id):
     app = Application.objects.get(id=app_id)
     dsc = app.dsc
-
-    client_ip = config.get("harness", "client_agent")
-    if app.protocol == Application.PROTOCOL_UDP:
-        url = "http://%s:8000/api/v1/UDPTraffics/%s/" % (client_ip,
-                                                         app.client_app_id)
-        post_args = {"is_start": False}
-        r = requests.patch(url,
-                           json=post_args)
-        logger.debug(r.text)
-        if r.status_code == 200:
-            app.is_start = False
-            app.save()
-    elif app.protocol == Application.PROTOCOL_TCP:
-        # TODO TCP traffic
-        pass
-
+    stop_client_app(app)
+    app.is_start = False
+    app.save()
     return redirect(dsc)

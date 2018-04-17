@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 class DSC(models.Model):
     name = models.CharField(max_length=256)
-    device_name_list = models.CharField(max_length=256)
 
     def get_absolute_url(self):
         from django.urls import reverse
