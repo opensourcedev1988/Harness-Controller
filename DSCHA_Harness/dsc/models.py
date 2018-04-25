@@ -1,9 +1,11 @@
 import logging
-from dsc.lib.bigip_rest import rest_get
-from dsc.lib.bigip_config import add_bigip_to_dsc, remove_bigip_from_dsc
+
 from django.db import models
 from django.db.models import SET_NULL
+
 from application.models import Application
+from dsc.lib.bigip_config import add_bigip_to_dsc, remove_bigip_from_dsc
+from lib.bigip_rest import rest_get
 
 logger = logging.getLogger(__name__)
 

@@ -20,7 +20,6 @@ from dsc import views as dsc_views
 from dashboard import views as dash_views
 from application import views as app_views
 from action import views as action_views
-from rest_framework_swagger.views import get_swagger_view
 from dsc import api as dsc_api
 from application import api as app_api
 from action import api as action_api
@@ -60,8 +59,8 @@ urlpatterns = [
     # DSC API
     url(r'^api/v1/dsc/$', dsc_api.DSCList.as_view()),
     url(r'^api/v1/dsc/(?P<pk>[0-9]+)/$', dsc_api.DSCDetail.as_view()),
-    url(r'^api/v1/dsc/(?P<pk>[0-9]+)/addbigip/(?P<bigip_pk>[0-9]+)/$', dsc_api.DSCAddList.as_view()),
-    url(r'^api/v1/dsc/(?P<pk>[0-9]+)/removebigip/(?P<bigip_pk>[0-9]+)/$', dsc_api.DSCRemoveList.as_view()),
+    # url(r'^api/v1/dsc/(?P<pk>[0-9]+)/addbigip/(?P<bigip_pk>[0-9]+)/$', dsc_api.DSCAddList.as_view()),
+    # url(r'^api/v1/dsc/(?P<pk>[0-9]+)/removebigip/(?P<bigip_pk>[0-9]+)/$', dsc_api.DSCRemoveList.as_view()),
     url(r'^api/v1/bigip/$', dsc_api.BIGIPList.as_view()),
     url(r'^api/v1/bigip/(?P<pk>[0-9]+)/$', dsc_api.BIGIPDetail.as_view()),
     url(r'^api/v1/vip/$', dsc_api.VIPList.as_view()),

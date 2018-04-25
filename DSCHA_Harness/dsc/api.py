@@ -65,46 +65,46 @@ class DSCDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class DSCAddList(APIView):
-
-    def get_dsc_object(self, pk):
-        try:
-            return DSC.objects.get(pk=pk)
-        except DSC.DoesNotExist:
-            raise Http404
-
-    def get_bigip_object(self, pk):
-        try:
-            return BIGIP.objects.get(pk=pk)
-        except BIGIP.DoesNotExist:
-            raise Http404
-
-    def post(self, request, pk, bigip_pk, format=None):
-        dsc = self.get_dsc_object(pk)
-        bigip = self.get_bigip_object(bigip_pk)
-        add_bigip_to_dsc(bigip, dsc)
-        return Response(status=status.HTTP_200_OK)
-
-
-class DSCRemoveList(APIView):
-
-    def get_dsc_object(self, pk):
-        try:
-            return DSC.objects.get(pk=pk)
-        except DSC.DoesNotExist:
-            raise Http404
-
-    def get_bigip_object(self, pk):
-        try:
-            return BIGIP.objects.get(pk=pk)
-        except BIGIP.DoesNotExist:
-            raise Http404
-
-    def post(self, request, pk, bigip_pk, format=None):
-        dsc = self.get_dsc_object(pk)
-        bigip = self.get_bigip_object(bigip_pk)
-        remove_bigip_from_dsc(bigip, dsc)
-        return Response(status=status.HTTP_200_OK)
+# class DSCAddList(APIView):
+#
+#     def get_dsc_object(self, pk):
+#         try:
+#             return DSC.objects.get(pk=pk)
+#         except DSC.DoesNotExist:
+#             raise Http404
+#
+#     def get_bigip_object(self, pk):
+#         try:
+#             return BIGIP.objects.get(pk=pk)
+#         except BIGIP.DoesNotExist:
+#             raise Http404
+#
+#     def post(self, request, pk, bigip_pk, format=None):
+#         dsc = self.get_dsc_object(pk)
+#         bigip = self.get_bigip_object(bigip_pk)
+#         add_bigip_to_dsc(bigip, dsc)
+#         return Response(status=status.HTTP_200_OK)
+#
+#
+# class DSCRemoveList(APIView):
+#
+#     def get_dsc_object(self, pk):
+#         try:
+#             return DSC.objects.get(pk=pk)
+#         except DSC.DoesNotExist:
+#             raise Http404
+#
+#     def get_bigip_object(self, pk):
+#         try:
+#             return BIGIP.objects.get(pk=pk)
+#         except BIGIP.DoesNotExist:
+#             raise Http404
+#
+#     def post(self, request, pk, bigip_pk, format=None):
+#         dsc = self.get_dsc_object(pk)
+#         bigip = self.get_bigip_object(bigip_pk)
+#         remove_bigip_from_dsc(bigip, dsc)
+#         return Response(status=status.HTTP_200_OK)
 
 
 class BIGIPList(APIView):
@@ -127,37 +127,42 @@ class BIGIPDetail(APIView):
     """
     Retrieve, update or delete a snippet instance.
     """
-    def get_object(self, pk):
+    def get_dsc_object(self, pk):
+        try:
+            return DSC.objects.get(pk=pk)
+        except DSC.DoesNotExist:
+            raise Http404
+
+    def get_bigip_object(self, pk):
         try:
             return BIGIP.objects.get(pk=pk)
         except BIGIP.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
-        bigip = self.get_object(pk)
+        bigip = self.get_bigip_object(pk)
         serializer = BIGIPSerializer(bigip)
         return Response(serializer.data)
 
     def patch(self, request, pk, format=None):
-        data = request.data
-        bigip = self.get_object(pk)
+        bigip = self.get_bigip_object(pk)
         serializer = BIGIPSerializer(bigip, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, pk, format=None):
-        data = request.data
-        bigip = self.get_object(pk)
-        serializer = BIGIPSerializer(bigip, data=request.data)
-        if serializer.is_valid():
+            if not bigip.dsc and "dsc" in request.data and request.data.get("dsc"):
+                # Add bigip to dsc
+                dsc_obj = self.get_dsc_object(request.data.get("dsc"))
+                add_bigip_to_dsc(bigip, dsc_obj)
+            elif bigip.dsc and "dsc" in request.data and not request.data.get("dsc"):
+                # Remove bigip from dsc
+                remove_bigip_from_dsc(bigip, bigip.dsc)
+            if bigip.dsc and request.data.get("dsc"):
+                del serializer.validated_data["dsc"]
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        bigip = self.get_object(pk)
+        bigip = self.get_bigip_object(pk)
         # Unlink all bigips under this dsc before delete dsc
         bigip.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

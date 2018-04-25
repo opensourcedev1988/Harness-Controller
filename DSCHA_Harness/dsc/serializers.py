@@ -12,12 +12,10 @@ class DSCSerializer(serializers.ModelSerializer):
 
 class BIGIPSerializer(serializers.ModelSerializer):
 
-    dsc = DSCSerializer()
-
     class Meta:
         model = BIGIP
         fields = ('id', 'mgmt_ip', 'login', 'password', 'primary', 'device_name', 'dsc')
-        read_only_fields = ('primary', 'device_name', 'dsc',)
+        read_only_fields = ('primary', 'device_name',)
 
 
 class VIPSerializer(serializers.ModelSerializer):
