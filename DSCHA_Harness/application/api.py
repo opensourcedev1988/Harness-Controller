@@ -66,7 +66,7 @@ class AppServerList(APIView):
             serializer_data = serializer.validated_data
             # Start application server if is_start is set to True
             if serializer_data.get('is_start') is True and serializer_data.get('application') is not None:
-                app_obj = self.get_app_object(serializer_data.get('application'))
+                app_obj = serializer_data.get('application')
                 server_side_id = start_server(app_obj, serializer_data.get('ip'), serializer_data.get('port'))
                 serializer.validated_data['server_side_id'] = server_side_id
             serializer.save()
@@ -103,16 +103,17 @@ class AppServerDetail(APIView):
         app_server = self.get_object(pk)
         serializer = AppServerSerializer(app_server, data=request.data, partial=True)
         if serializer.is_valid():
-            app_id = serializer.validated_data.get('application') or app_server.application
-            if app_server.is_start != serializer.validated_data['is_start'] and app_id is not None:
+            if serializer.validated_data.get('application'):
+                app_obj = serializer.validated_data.get('application')
+            else:
+                app_obj = app_server.application
+            if app_server.is_start != serializer.validated_data.get('is_start') and app_obj is not None:
                 if serializer.validated_data['is_start'] is True:
                     srv_ip = serializer.validated_data.get('ip') or app_server.ip
                     srv_port = serializer.validated_data.get('port') or app_server.port
-                    app_obj = self.get_app_object(app_id)
                     server_side_id = start_server(app_obj, srv_ip, srv_port)
                     serializer.validated_data['server_side_id'] = server_side_id
                 else:
-                    app_obj = self.get_app_object(app_id)
                     stop_server(app_obj, app_server.server_side_id)
                     serializer.validated_data['server_side_id'] = None
             serializer.save()
@@ -138,12 +139,16 @@ class ApplicationList(APIView):
 
     def post(self, request, format=None):
         data = request.data
-        # We don't start the app when creating the application object
-        if 'is_start' in data:
-            del data['is_start']
         serializer = ApplicationSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            app_obj = serializer.save()
+            # Check application init
+            client_app_id = create_client_app(app_obj)
+            app_init_config(app_obj)
+            app_obj.client_app_id = client_app_id
+            if app_obj.is_start is True:
+                start_client_app(app_obj)
+            app_obj.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -158,16 +163,26 @@ class ApplicationDetail(APIView):
         except Application.DoesNotExist:
             raise Http404
 
-    def get_app_object(self, pk):
-        try:
-            return Application.objects.get(pk=pk)
-        except Application.DoesNotExist:
-            raise Http404
-
     def get(self, request, pk, format=None):
         app = self.get_object(pk)
         serializer = ApplicationSerializer(app)
         return Response(serializer.data)
+
+    def patch(self, request, pk, format=None):
+        app_obj = self.get_object(pk)
+        data = {}
+        # Here we only process start/stop application
+        if app_obj.is_start is False and request.data.get("is_start") is True:
+            start_client_app(app_obj)
+            data['is_start'] = True
+        elif app_obj.is_start is True and request.data.get("is_start") is False:
+            stop_client_app(app_obj)
+            data['is_start'] = False
+        serializer = ApplicationSerializer(app_obj, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
         app = self.get_object(pk)

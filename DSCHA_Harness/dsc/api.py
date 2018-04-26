@@ -148,14 +148,15 @@ class BIGIPDetail(APIView):
         bigip = self.get_bigip_object(pk)
         serializer = BIGIPSerializer(bigip, data=request.data, partial=True)
         if serializer.is_valid():
-            if not bigip.dsc and "dsc" in request.data and request.data.get("dsc"):
+            validate_data = serializer.validated_data
+            if not bigip.dsc and validate_data.get("dsc"):
                 # Add bigip to dsc
-                dsc_obj = self.get_dsc_object(request.data.get("dsc"))
+                dsc_obj = validate_data.get("dsc")
                 add_bigip_to_dsc(bigip, dsc_obj)
-            elif bigip.dsc and "dsc" in request.data and not request.data.get("dsc"):
+            elif bigip.dsc and not validate_data.get("dsc"):
                 # Remove bigip from dsc
                 remove_bigip_from_dsc(bigip, bigip.dsc)
-            if bigip.dsc and request.data.get("dsc"):
+            if bigip.dsc and validate_data.get("dsc"):
                 del serializer.validated_data["dsc"]
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

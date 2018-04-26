@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class DSC(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, unique=True)
 
     def get_absolute_url(self):
         from django.urls import reverse
@@ -38,7 +38,7 @@ class DSC(models.Model):
 
 
 class BIGIP(models.Model):
-    mgmt_ip = models.GenericIPAddressField()
+    mgmt_ip = models.GenericIPAddressField(unique=True)
     login = models.CharField(max_length=256)
     password = models.CharField(max_length=256)
     primary = models.BooleanField(default=False)
@@ -56,7 +56,7 @@ class BIGIP(models.Model):
 
 
 class VirtualServer(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, unique=True)
     application = models.ForeignKey(Application, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -64,7 +64,7 @@ class VirtualServer(models.Model):
 
 
 class TrafficGroup(models.Model):
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, unique=True)
     application = models.ForeignKey(Application, on_delete=models.CASCADE, null=True, blank=True)
     bigips = models.ManyToManyField(BIGIP)
 
@@ -73,7 +73,7 @@ class TrafficGroup(models.Model):
 
 
 class VIP(models.Model):
-    ip = models.GenericIPAddressField()
+    ip = models.GenericIPAddressField(unique=True)
 
     def __str__(self):
         return str(self.ip)

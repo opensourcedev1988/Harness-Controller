@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django_celery_beat.models import PeriodicTask, PeriodicTasks, IntervalSchedule, CrontabSchedule, SolarSchedule
-from .models import FailoverAction
+from .models import AppAction, DSCAction, BigipAction
 
 
 class IntervalScheduleSerializer(serializers.ModelSerializer):
@@ -24,8 +24,31 @@ class SolarScheduleSerializer(serializers.ModelSerializer):
         fields = ('id', 'event', 'latitude', 'longitude')
 
 
-class FailoverActionSerilizer(serializers.ModelSerializer):
+class AppActionSerilizer(serializers.ModelSerializer):
 
     class Meta:
-        model = FailoverAction
-        fields = ('id', 'name', 'application', 'interval', 'crontab', 'solar', 'is_enable')
+        model = AppAction
+        fields = ('id', 'name', 'application', 'interval',
+                  'crontab', 'solar', 'is_enable', 'periodic_task',
+                  'args_str', 'kwargs_str')
+        read_only_fields = ('periodic_task', 'args_str', 'kwargs_str')
+
+
+class DSCActionSerilizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DSCAction
+        fields = ('id', 'name', 'dsc', 'interval',
+                  'crontab', 'solar', 'is_enable', 'periodic_task',
+                  'args_str', 'kwargs_str')
+        read_only_fields = ('periodic_task', 'args_str', 'kwargs_str')
+
+
+class BigipActionSerilizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = BigipAction
+        fields = ('id', 'name', 'bigip', 'interval',
+                  'crontab', 'solar', 'is_enable', 'periodic_task',
+                  'args_str', 'kwargs_str')
+        read_only_fields = ('periodic_task', 'args_str', 'kwargs_str')

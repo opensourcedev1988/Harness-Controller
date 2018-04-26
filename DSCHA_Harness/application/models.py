@@ -1,15 +1,14 @@
 import logging
-from django.conf import settings
+
 from django.db import models
-from application.lib.app_config import start_server, stop_server
 from django.db.models import SET_NULL
-from dsc.lib.bigip_rest import *
+from lib.bigip_rest import *
 
 logger = logging.getLogger(__name__)
 
 
 class SOURCEIP(models.Model):
-    ip = models.GenericIPAddressField()
+    ip = models.GenericIPAddressField(unique=True)
 
     def __str__(self):
         return str(self.ip)
@@ -30,7 +29,7 @@ class Application(models.Model):
         PROTOCOL_UDP: "udp",
     }
 
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=256, unique=True)
     description = models.TextField(null=True, blank=True)
     protocol = models.IntegerField(choices=PROTOCOL_CHOICES)    # Is this TCP or UDP?
     socket_port = models.IntegerField()                         # TCP or UDP port for BIG-IP VIP and server nodes

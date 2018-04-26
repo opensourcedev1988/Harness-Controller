@@ -1,13 +1,12 @@
-import requests
-import logging
 import configparser
-from django.http import Http404
-from dsc.lib.bigip_rest import *
-from global_var import *
+import logging
+
+from django.conf import settings
+from lib.bigip_rest import *
 
 logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
-config.read(harness_config_path)
+config.read(settings.HARNESS_CONFIG_PATH)
 
 
 class BadRequest(Exception):
@@ -45,7 +44,8 @@ def stop_server(app, server_side_id):
         r = requests.delete(url)
         logger.debug(r.text)
         if r.status_code != 200:
-            raise BadRequest("UDP server didn't stop successfully")
+            logger.warning(r.text)
+            logger.warning("UDP server %s didn't stop successfully" % url)
 
     elif app.protocol == Application.PROTOCOL_TCP:
         # TODO Stop TCP traffic

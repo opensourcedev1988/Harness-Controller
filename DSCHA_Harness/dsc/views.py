@@ -1,10 +1,12 @@
 import logging
-from.models import BIGIP, DSC
-from dsc.lib.bigip_rest import *
-from .forms import BIGIPForm, DSCForm
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+
 from django.http import HttpResponseRedirect
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+
+from lib.bigip_rest import *
+from .forms import BIGIPForm, DSCForm
+from.models import BIGIP, DSC
 
 logger = logging.getLogger(__name__)
 

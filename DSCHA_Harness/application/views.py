@@ -2,7 +2,7 @@ import requests
 import logging
 import configparser
 from django.shortcuts import render, redirect
-from global_var import *
+from django.conf import settings
 from dsc.models import DSC, VIP
 from .forms import AppForm
 from .lib.app_config import *
@@ -11,7 +11,7 @@ from dsc.models import VirtualServer, TrafficGroup, BIGIP
 
 logger = logging.getLogger(__name__)
 config = configparser.ConfigParser()
-config.read(harness_config_path)
+config.read(settings.HARNESS_CONFIG_PATH)
 
 
 def create_app(request, dsc_id):

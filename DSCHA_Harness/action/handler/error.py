@@ -1,0 +1,2 @@
+class ModelNotExistException(Exception):
+    pass

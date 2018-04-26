@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
+    # 'rest_framework',
     'dashboard',
     'dsc',
     'application',
@@ -83,25 +83,25 @@ WSGI_APPLICATION = 'DSCHA_Harness.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
-# # sqllite data base
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
-# Postgres database
+# sqllite data base
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dscha_harness',
-        'USER': 'jixu',
-        'PASSWORD': 'F5pass12!',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# # Postgres database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'dscha_harness',
+#         'USER': 'jixu',
+#         'PASSWORD': 'F5pass12!',
+#         'HOST': '127.0.0.1',
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation
@@ -180,6 +180,13 @@ USE_TZ = True
 
 # Celery
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Harness Config
+HARNESS_CONFIG_PATH = "Conf/Harness.cfg"
+
+# Plugin
+PLUGIN_DIR = "plugin"
+ACTION_FUNC = "action"
 
 STATIC_URL = '/static/'
 

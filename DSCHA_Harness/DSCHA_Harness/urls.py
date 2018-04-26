@@ -59,8 +59,11 @@ urlpatterns = [
     # DSC API
     url(r'^api/v1/dsc/$', dsc_api.DSCList.as_view()),
     url(r'^api/v1/dsc/(?P<pk>[0-9]+)/$', dsc_api.DSCDetail.as_view()),
+
+    # # Two shortcut api to add/remove big, not normally used
     # url(r'^api/v1/dsc/(?P<pk>[0-9]+)/addbigip/(?P<bigip_pk>[0-9]+)/$', dsc_api.DSCAddList.as_view()),
     # url(r'^api/v1/dsc/(?P<pk>[0-9]+)/removebigip/(?P<bigip_pk>[0-9]+)/$', dsc_api.DSCRemoveList.as_view()),
+
     url(r'^api/v1/bigip/$', dsc_api.BIGIPList.as_view()),
     url(r'^api/v1/bigip/(?P<pk>[0-9]+)/$', dsc_api.BIGIPDetail.as_view()),
     url(r'^api/v1/vip/$', dsc_api.VIPList.as_view()),
@@ -78,9 +81,11 @@ urlpatterns = [
     url(r'^api/v1/appserver/(?P<pk>[0-9]+)/$', app_api.AppServerDetail.as_view()),
     url(r'^api/v1/application/$', app_api.ApplicationList.as_view()),
     url(r'^api/v1/application/(?P<pk>[0-9]+)/$', app_api.ApplicationDetail.as_view()),
-    url(r'^api/v1/application/(?P<pk>[0-9]+)/start$', app_api.ApplicationStart.as_view()),
-    url(r'^api/v1/application/(?P<pk>[0-9]+)/stop$', app_api.ApplicationStop.as_view()),
-    url(r'^api/v1/application/(?P<pk>[0-9]+)/init$', app_api.ApplicationInit.as_view()),
+
+    # # These three api are shortcut api to start/stop/initialize application, not normally used
+    # url(r'^api/v1/application/(?P<pk>[0-9]+)/start$', app_api.ApplicationStart.as_view()),
+    # url(r'^api/v1/application/(?P<pk>[0-9]+)/stop$', app_api.ApplicationStop.as_view()),
+    # url(r'^api/v1/application/(?P<pk>[0-9]+)/init$', app_api.ApplicationInit.as_view()),
 
 
     # Action API
@@ -90,8 +95,20 @@ urlpatterns = [
     url(r'^api/v1/crontab/(?P<pk>[0-9]+)/$', action_api.CrontabScheduleDetail.as_view()),
     url(r'^api/v1/solar/$', action_api.SolarScheduleeList.as_view()),
     url(r'^api/v1/solar/(?P<pk>[0-9]+)/$', action_api.SolarScheduleDetail.as_view()),
-    url(r'^api/v1/failoveraction/$', action_api.FailoverActionList.as_view()),
-    url(r'^api/v1/failoveraction/(?P<pk>[0-9]+)/$', action_api.FailoverActionDetail.as_view()),
+
+    url(r'^api/v1/action/$', action_api.Action.as_view()),
+
+    url(r'^api/v1/appaction/$', action_api.AppActionGetList.as_view()),
+    url(r'^api/v1/appaction/create/(?P<action>[a-zA-Z0-9_-]+)/$', action_api.AppActionAddList.as_view()),
+    url(r'^api/v1/appaction/(?P<pk>[0-9]+)/$', action_api.AppActionDetail.as_view()),
+
+    url(r'^api/v1/dscaction/$', action_api.DSCActionGetList.as_view()),
+    url(r'^api/v1/dscaction/create/(?P<action>[a-zA-Z0-9_-]+)/$', action_api.DSCActionAddList.as_view()),
+    url(r'^api/v1/dscaction/(?P<pk>[0-9]+)/$', action_api.DSCActionDetail.as_view()),
+
+    url(r'^api/v1/bigipaction/$', action_api.BigipActionGetList.as_view()),
+    url(r'^api/v1/bigipaction/create/(?P<action>[a-zA-Z0-9_-]+)/$', action_api.BigipActionAddList.as_view()),
+    url(r'^api/v1/bigipaction/(?P<pk>[0-9]+)/$', action_api.BigipActionDetail.as_view()),
 
     # REST API Doc
     url(r'^docs/', include_docs_urls(title=API_TITLE))
