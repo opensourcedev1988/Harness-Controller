@@ -1,12 +1,9 @@
 import logging
 import signal
 import re
+import prctl
 from threading import Thread
 from subprocess import Popen, PIPE
-try:
-    import prctl
-except ImportError:
-    pass
 
 log = logging.getLogger("TMSH Utils")
 
