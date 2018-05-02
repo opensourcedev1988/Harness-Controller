@@ -55,7 +55,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Rest API
-
     # DSC API
     url(r'^api/v1/dsc/$', dsc_api.DSCList.as_view()),
     url(r'^api/v1/dsc/(?P<pk>[0-9]+)/$', dsc_api.DSCDetail.as_view()),
