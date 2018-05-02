@@ -4,5 +4,4 @@ djangorestframework
 celery
 psycopg2
 django-celery-beat
-prctl
 python-prctl
